@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Trash2, RefreshCcw, Sparkles, Heart, Settings } from 'lucide-react';
+import { Trash2, RefreshCcw, Sparkles, Heart, Settings, BookOpen } from 'lucide-react';
 
 interface GuessRecord {
   id: string;
@@ -67,8 +67,11 @@ const Game1A2B = () => {
   const [showWiggle, setShowWiggle] = useState(false);
   const [currentTheme, setCurrentTheme] = useState<Theme>(THEMES[1]);
   const [showThemeMenu, setShowThemeMenu] = useState(false);
+  const [showNotebook, setShowNotebook] = useState(false);
+  const [crossedOutDigits, setCrossedOutDigits] = useState<Set<number>>(new Set());
   const historyContainerRef = useRef<HTMLDivElement>(null);
   const themeMenuRef = useRef<HTMLDivElement>(null);
+  const notebookMenuRef = useRef<HTMLDivElement>(null);
 
   // Generate a random 4-digit secret code with unique digits
   const generateSecret = () => {
@@ -80,6 +83,7 @@ const Game1A2B = () => {
     setGameWon(false);
     setInput('');
     setError('');
+    setCrossedOutDigits(new Set());
   };
 
   // Initialize game on mount
@@ -107,11 +111,14 @@ const Game1A2B = () => {
     document.documentElement.style.setProperty('--border', theme.border);
   };
 
-  // Close theme menu when clicking outside
+  // Close theme menu and notebook when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (themeMenuRef.current && !themeMenuRef.current.contains(event.target as Node)) {
         setShowThemeMenu(false);
+      }
+      if (notebookMenuRef.current && !notebookMenuRef.current.contains(event.target as Node)) {
+        setShowNotebook(false);
       }
     };
 
@@ -249,42 +256,112 @@ const Game1A2B = () => {
           </button>
 
           {/* Settings Section */}
-          <div className="relative" ref={themeMenuRef}>
-            <button
-              onClick={() => setShowThemeMenu(!showThemeMenu)}
-              className="cursor-pointer p-3 rounded-full transition-all duration-200 text-white hover:scale-110 active:scale-95"
-              style={{ backgroundColor: currentTheme.primary }}
-              title="Theme Settings"
-            >
-              <Settings size={24} />
-            </button>
-            {/* Theme Menu */}
-            {showThemeMenu && (
-              <div
-                className="absolute right-0 mt-2 rounded-[8px] shadow-lg overflow-hidden z-20"
-                style={{
-                  backgroundColor: currentTheme.card,
-                  boxShadow: `0 4px 12px rgba(0, 0, 0, 0.3), 0 0 0 1px ${currentTheme.border}`,
-                  minWidth: '160px',
-                }}
+          <div className="flex gap-2">
+            {/* Notebook Button */}
+            <div className="relative" ref={notebookMenuRef}>
+              <button
+                onClick={() => setShowNotebook(!showNotebook)}
+                className="cursor-pointer p-3 rounded-full transition-all duration-200 text-white hover:scale-110 active:scale-95"
+                style={{ backgroundColor: currentTheme.primary }}
+                title="Notebook"
               >
-                {THEMES.map((theme) => (
+                <BookOpen size={24} />
+              </button>
+              {/* Notebook Menu */}
+              {showNotebook && (
+                <div
+                  className="absolute right-0 mt-2 rounded-[12px] shadow-lg overflow-hidden z-20 p-4"
+                  style={{
+                    backgroundColor: currentTheme.card,
+                    boxShadow: `0 4px 12px rgba(0, 0, 0, 0.3), 0 0 0 1px ${currentTheme.border}`,
+                    minWidth: '200px',
+                  }}
+                >
+                  <div className="text-center mb-3">
+                    <p className="text-sm font-bold" style={{ color: currentTheme.foreground }}>
+                      Mark eliminated digits
+                    </p>
+                  </div>
+                  <div className="grid grid-cols-5 gap-2">
+                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 0].map((digit) => {
+                      const isCrossedOut = crossedOutDigits.has(digit);
+                      return (
+                        <button
+                          key={digit}
+                          onClick={() => {
+                            const newSet = new Set(crossedOutDigits);
+                            if (isCrossedOut) {
+                              newSet.delete(digit);
+                            } else {
+                              newSet.add(digit);
+                            }
+                            setCrossedOutDigits(newSet);
+                          }}
+                          className="w-8 h-8 rounded-[8px] font-bold text-sm transition-all hover:scale-105 active:scale-95"
+                          style={{
+                            backgroundColor: isCrossedOut ? currentTheme.muted : currentTheme.primary,
+                            color: currentTheme.foreground,
+                            textDecoration: isCrossedOut ? 'line-through' : 'none',
+                            opacity: isCrossedOut ? 0.5 : 1,
+                          }}
+                        >
+                          {digit}
+                        </button>
+                      );
+                    })}
+                  </div>
                   <button
-                    key={theme.id}
-                    onClick={() => handleThemeChange(theme)}
-                    className="w-full px-4 py-3 text-left text-sm font-semibold transition-all hover:opacity-80 flex items-center justify-between"
+                    onClick={() => setCrossedOutDigits(new Set())}
+                    className="w-full mt-3 py-2 rounded-[8px] text-xs font-semibold transition-all hover:opacity-80"
                     style={{
+                      backgroundColor: currentTheme.secondary,
                       color: currentTheme.foreground,
-                      backgroundColor:
-                        currentTheme.id === theme.id ? currentTheme.primary : 'transparent',
                     }}
                   >
-                    {theme.name}
-                    {currentTheme.id === theme.id && <span className="text-lg">✓</span>}
+                    Clear All
                   </button>
-                ))}
-              </div>
-            )}
+                </div>
+              )}
+            </div>
+
+            {/* Theme Settings Button */}
+            <div className="relative" ref={themeMenuRef}>
+              <button
+                onClick={() => setShowThemeMenu(!showThemeMenu)}
+                className="cursor-pointer p-3 rounded-full transition-all duration-200 text-white hover:scale-110 active:scale-95"
+                style={{ backgroundColor: currentTheme.primary }}
+                title="Theme Settings"
+              >
+                <Settings size={24} />
+              </button>
+              {/* Theme Menu */}
+              {showThemeMenu && (
+                <div
+                  className="absolute right-0 mt-2 rounded-[8px] shadow-lg overflow-hidden z-20"
+                  style={{
+                    backgroundColor: currentTheme.card,
+                    boxShadow: `0 4px 12px rgba(0, 0, 0, 0.3), 0 0 0 1px ${currentTheme.border}`,
+                    minWidth: '160px',
+                  }}
+                >
+                  {THEMES.map((theme) => (
+                    <button
+                      key={theme.id}
+                      onClick={() => handleThemeChange(theme)}
+                      className="w-full px-4 py-3 text-left text-sm font-semibold transition-all hover:opacity-80 flex items-center justify-between"
+                      style={{
+                        color: currentTheme.foreground,
+                        backgroundColor:
+                          currentTheme.id === theme.id ? currentTheme.primary : 'transparent',
+                      }}
+                    >
+                      {theme.name}
+                      {currentTheme.id === theme.id && <span className="text-lg">✓</span>}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
@@ -454,11 +531,10 @@ const Game1A2B = () => {
                   key={num}
                   onClick={() => handleNumberClick(num)}
                   disabled={gameWon || input.length >= 4 || input.includes(num)}
-                  className={`py-3 rounded-[12px] font-bold text-lg transition-all duration-200 text-white ${
-                    gameWon || input.length >= 4 || input.includes(num)
-                      ? 'opacity-50 cursor-not-allowed'
-                      : 'hover:scale-105 active:scale-95 shadow-md hover:shadow-lg'
-                  }`}
+                  className={`py-3 rounded-[12px] font-bold text-lg transition-all duration-200 text-white ${gameWon || input.length >= 4 || input.includes(num)
+                    ? 'opacity-50 cursor-not-allowed'
+                    : 'hover:scale-105 active:scale-95 shadow-md hover:shadow-lg'
+                    }`}
                   style={{
                     background:
                       gameWon || input.length >= 4 || input.includes(num)
@@ -476,11 +552,10 @@ const Game1A2B = () => {
                   key={num}
                   onClick={() => handleNumberClick(num)}
                   disabled={gameWon || input.length >= 4 || input.includes(num)}
-                  className={`py-3 rounded-[12px] font-bold text-lg transition-all duration-200 text-white ${
-                    gameWon || input.length >= 4 || input.includes(num)
-                      ? 'opacity-50 cursor-not-allowed'
-                      : 'hover:scale-105 active:scale-95 shadow-md hover:shadow-lg'
-                  }`}
+                  className={`py-3 rounded-[12px] font-bold text-lg transition-all duration-200 text-white ${gameWon || input.length >= 4 || input.includes(num)
+                    ? 'opacity-50 cursor-not-allowed'
+                    : 'hover:scale-105 active:scale-95 shadow-md hover:shadow-lg'
+                    }`}
                   style={{
                     background:
                       gameWon || input.length >= 4 || input.includes(num)
@@ -499,11 +574,10 @@ const Game1A2B = () => {
             <button
               onClick={handleBackspace}
               disabled={gameWon || input.length === 0}
-              className={`py-3 rounded-[12px] font-bold text-white transition-all duration-200 flex items-center justify-center ${
-                gameWon || input.length === 0
-                  ? 'opacity-50 cursor-not-allowed'
-                  : 'hover:scale-105 active:scale-95 shadow-md'
-              }`}
+              className={`py-3 rounded-[12px] font-bold text-white transition-all duration-200 flex items-center justify-center ${gameWon || input.length === 0
+                ? 'opacity-50 cursor-not-allowed'
+                : 'hover:scale-105 active:scale-95 shadow-md'
+                }`}
               style={{ backgroundColor: currentTheme.secondary }}
               title="Delete"
             >
@@ -512,11 +586,10 @@ const Game1A2B = () => {
             <button
               onClick={handleGuess}
               disabled={gameWon || input.length !== 4}
-              className={`py-3 rounded-[12px] font-bold text-white transition-all duration-200 flex items-center justify-center ${
-                gameWon || input.length !== 4
-                  ? 'opacity-50 cursor-not-allowed'
-                  : 'hover:scale-105 active:scale-95 shadow-md hover:shadow-lg'
-              }`}
+              className={`py-3 rounded-[12px] font-bold text-white transition-all duration-200 flex items-center justify-center ${gameWon || input.length !== 4
+                ? 'opacity-50 cursor-not-allowed'
+                : 'hover:scale-105 active:scale-95 shadow-md hover:shadow-lg'
+                }`}
               style={{
                 background:
                   gameWon || input.length !== 4
