@@ -274,7 +274,7 @@ const Game1A2B = () => {
                   style={{
                     backgroundColor: currentTheme.card,
                     boxShadow: `0 4px 12px rgba(0, 0, 0, 0.3), 0 0 0 1px ${currentTheme.border}`,
-                    minWidth: '200px',
+                    minWidth: '225px',
                   }}
                 >
                   <div className="text-center mb-3">
@@ -297,9 +297,11 @@ const Game1A2B = () => {
                             }
                             setCrossedOutDigits(newSet);
                           }}
-                          className="w-8 h-8 rounded-[8px] font-bold text-sm transition-all hover:scale-105 active:scale-95"
+                          className="w-8 h-8 rounded-[8px] font-bold text-sm transition-all"
                           style={{
-                            backgroundColor: isCrossedOut ? currentTheme.muted : currentTheme.primary,
+                            backgroundColor: isCrossedOut
+                              ? currentTheme.muted
+                              : currentTheme.primary,
                             color: currentTheme.foreground,
                             textDecoration: isCrossedOut ? 'line-through' : 'none',
                             opacity: isCrossedOut ? 0.5 : 1,
@@ -531,10 +533,11 @@ const Game1A2B = () => {
                   key={num}
                   onClick={() => handleNumberClick(num)}
                   disabled={gameWon || input.length >= 4 || input.includes(num)}
-                  className={`py-3 rounded-[12px] font-bold text-lg transition-all duration-200 text-white ${gameWon || input.length >= 4 || input.includes(num)
-                    ? 'opacity-50 cursor-not-allowed'
-                    : 'hover:scale-105 active:scale-95 shadow-md hover:shadow-lg'
-                    }`}
+                  className={`py-3 rounded-[12px] font-bold text-lg transition-all duration-200 text-white ${
+                    gameWon || input.length >= 4 || input.includes(num)
+                      ? 'opacity-50 cursor-not-allowed'
+                      : 'hover:scale-105 active:scale-95 shadow-md hover:shadow-lg'
+                  }`}
                   style={{
                     background:
                       gameWon || input.length >= 4 || input.includes(num)
@@ -552,10 +555,11 @@ const Game1A2B = () => {
                   key={num}
                   onClick={() => handleNumberClick(num)}
                   disabled={gameWon || input.length >= 4 || input.includes(num)}
-                  className={`py-3 rounded-[12px] font-bold text-lg transition-all duration-200 text-white ${gameWon || input.length >= 4 || input.includes(num)
-                    ? 'opacity-50 cursor-not-allowed'
-                    : 'hover:scale-105 active:scale-95 shadow-md hover:shadow-lg'
-                    }`}
+                  className={`py-3 rounded-[12px] font-bold text-lg transition-all duration-200 text-white ${
+                    gameWon || input.length >= 4 || input.includes(num)
+                      ? 'opacity-50 cursor-not-allowed'
+                      : 'hover:scale-105 active:scale-95 shadow-md hover:shadow-lg'
+                  }`}
                   style={{
                     background:
                       gameWon || input.length >= 4 || input.includes(num)
@@ -574,10 +578,11 @@ const Game1A2B = () => {
             <button
               onClick={handleBackspace}
               disabled={gameWon || input.length === 0}
-              className={`py-3 rounded-[12px] font-bold text-white transition-all duration-200 flex items-center justify-center ${gameWon || input.length === 0
-                ? 'opacity-50 cursor-not-allowed'
-                : 'hover:scale-105 active:scale-95 shadow-md'
-                }`}
+              className={`py-3 rounded-[12px] font-bold text-white transition-all duration-200 flex items-center justify-center ${
+                gameWon || input.length === 0
+                  ? 'opacity-50 cursor-not-allowed'
+                  : 'hover:scale-105 active:scale-95 shadow-md'
+              }`}
               style={{ backgroundColor: currentTheme.secondary }}
               title="Delete"
             >
@@ -586,10 +591,11 @@ const Game1A2B = () => {
             <button
               onClick={handleGuess}
               disabled={gameWon || input.length !== 4}
-              className={`py-3 rounded-[12px] font-bold text-white transition-all duration-200 flex items-center justify-center ${gameWon || input.length !== 4
-                ? 'opacity-50 cursor-not-allowed'
-                : 'hover:scale-105 active:scale-95 shadow-md hover:shadow-lg'
-                }`}
+              className={`py-3 rounded-[12px] font-bold text-white transition-all duration-200 flex items-center justify-center ${
+                gameWon || input.length !== 4
+                  ? 'opacity-50 cursor-not-allowed'
+                  : 'hover:scale-105 active:scale-95 shadow-md hover:shadow-lg'
+              }`}
               style={{
                 background:
                   gameWon || input.length !== 4
